@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-registro',
@@ -29,17 +30,38 @@ export class RegistroComponent implements OnInit {
       localStorage.setItem('email', this.usuario.email)
     }
 
-    this.auth.nuevoUsuario(this.usuario)
-    .subscribe( resp => console.log(resp)
-     );
+    Swal.fire({
+      allowOutsideClick: false,
+      icon: 'info',
+      text: 'Espere por favor...'
+    });
+    Swal.showLoading();
 
-     this.router.navigateByUrl('/login')
+    this.auth.nuevoUsuario(this.usuario)
+    .subscribe( resp => {
+      console.log(resp)
+      Swal.close();
+
+      if (this.recordarme){
+        localStorage.setItem('email', this.usuario.email);
+      }
+
+      this.router.navigateByUrl('/login')
+
+    }, (err) =>{
+      Swal.fire({
+        icon: 'error',
+  title: 'Error al autenticar',
+  text: err.error.error.message
+      });
+    });
+
 
      
 
 
-    console.log(form);
-    console.log(this.usuario);
+    // console.log(form);
+    // console.log(this.usuario);
     
   }
 
